@@ -5,9 +5,14 @@ import random
 import torch
 from pickle import load, dump
 
-SAVED_RUNS_PATH = '/kaggle/working/saved_data/'
-EXP_PATH = '/kaggle/working/exps_setup/'
+SAVED_RUNS_PATH = './saved_data/'
+EXP_PATH = './exps_setup/'
 
+def set_working_directory(name):
+    global SAVED_RUNS_PATH
+    global EXP_PATH
+    SAVED_RUNS_PATH = name + '/saved_data/'
+    EXP_PATH = name + '/exps_setup/'
 
 def save_run(suffix, run):
     if not os.path.isdir(SAVED_RUNS_PATH):
@@ -38,18 +43,19 @@ def read_run(file):
 def create_run():
     run = {'train_loss': [],
            'test_loss': [],
-           'test_acc': []
+           'test_acc': [], 
+           'information': [],
+            'error_ratio': []
            }
     return run
 
 
-def update_run(train_loss, test_loss, test_acc, run, compressed_loss=None):
+def update_run(train_loss, test_loss, test_acc, run, information, error_ratio):
     run['train_loss'].append(train_loss)
     run['test_loss'].append(test_loss)
     run['test_acc'].append(test_acc)
-    if compressed_loss is not None:
-        run['compressed_loss'] = compressed_loss
-
+    run['information'].append(information)
+    run['error_ratio'].append(error_ratio)
 
 def save_exp(exp):
     if not os.path.isdir(EXP_PATH):
@@ -68,7 +74,8 @@ def load_exp(exp_name):
 
 
 def create_exp(name, dataset, net, n_workers, epochs, seed, batch_size, lrs, compression, error_feedback, criterion,
-               master_compression=None, momentum=0, weight_decay=0, val_ratio=0.1, common_ratio=0.0):
+               master_compression=None, momentum=0, weight_decay=0, val_ratio=0.1, common_ratio=0.0, log_every=1,
+               threshold=None, ef_21=False):
     exp = {
         'name': name,
         'dataset_name': dataset,
@@ -86,8 +93,11 @@ def create_exp(name, dataset, net, n_workers, epochs, seed, batch_size, lrs, com
         'momentum': momentum,
         'weight_decay': weight_decay,
         'val_ratio': val_ratio,
-        'common_ratio': common_ratio
-            }
+        'common_ratio': common_ratio,
+        'log_every': log_every,
+        'threshold': threshold,
+        'ef_21': ef_21,
+        }
     return exp
 
 
