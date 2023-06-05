@@ -1,3 +1,4 @@
+#prep data
 import numpy as np
 from torchvision import datasets
 import torchvision.transforms as transforms
